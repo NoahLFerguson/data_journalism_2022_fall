@@ -159,7 +159,7 @@ maryland_winred_contributions %>%
 ```
 
 Compared to the previous codeblock, what has changed and how did that affect the result?
-The code is now showing which donations were most prevalent/frequent, sorting from highest to lowest the amount of contributions. For instance, 1419 people gave 25 dollars to SAVE AMERICA JOINT FUNDRAISING COMMITTEE, the moist frequent of any donation.
+The code is now showing which donations were most prevalent/frequent, sorting from highest to lowest the amount of contributions. For instance, 1419 people gave 25 dollars to SAVE AMERICA JOINT FUNDRAISING COMMITTEE, the most frequent of any donation.
 
 ### Task 9
 **Task** Run the following codeblock:
