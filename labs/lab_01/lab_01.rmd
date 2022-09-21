@@ -56,24 +56,38 @@ wv_winred_contribs <- read_rds("lab_01.rds")
 column names, types and sample data. **Q1** How many rows and columns
 does this dataframe have?
 
-**A1** 24 columns
+ 24 columns
 
 ```{r}
 glimpse(wv_winred_contribs)
 view(wv_winred_contribs)
-arrange(city)
+```
 ## Answer questions
 
 **Q2** Which West Virginia city provided the largest number of
 contributions? How many? 
-  **A2** Morgantown
+Martinsburg had the largest number of contributions with 781 contributions
 
+```{r}
+wv_winred_contribs %>%
+  group_by(city) %>%
+  summarise(
+    count_contribs = n()
+  ) %>%
+  arrange(desc(count_contribs))
 ```
 
 **Q3** Which West Virginia city accounted for the fewest contributions?
-How many? **A3** Inwood
+How many? 
+40 cities tied for the fewest contributions with one contribution each, Auburn topping the list alphabetically
 
 ```{r}
+wv_winred_contribs %>%
+  group_by(city) %>%
+  summarise(
+    count_contribs = n()
+  ) %>%
+  arrange(count_contribs)
 ```
 
 **Q4** What's your best educated guess to explain why the city
@@ -81,20 +95,25 @@ identified in question 2 had more contributions compared to the cities
 identified in question 3? Hint: you won't find the answer in the data,
 you'll need to do some quick web research. You do not need to write any
 code for this question, so no codeblock is provided.\
-**A4** Morgantown has a population of over 30,000 people and is home to
-West Virginia University's campus, which could explain a higher number
-of contributions based on the population that lives there **Q5** What
-recipient got the largest total amount of money? How many contributions
-did they receive and what was the average donation? **A5**
+**A4**  Martinsburg is more populated than some of the other cities in West Virginia — it is the largest city in the Eastern Panhandle. It's also geographically located close to Harper's Ferry, which is a connecting point between Maryland, Virginia and West Virginia.
+**Q5** What recipient got the largest total amount of money? How many contributions
+did they receive and what was the average donation? 
+**A5** The Save America JFC had the largest total amount of money donated with $66,972.89. They received 2448 contributions and the average donation was $27.35.
 
 ```{r}
+wv_winred_contribs %>%
+  group_by(memo_text) %>% 
+  summarise(
+    count_contribs = n(),
+    total=sum(amount)) %>% 
+  arrange(desc(total))
 ```
 
 **Q6** What is that top recipient and what explains its popularity?
 Hint: this will require web research, you won't be able to answer this
 purely from the data set. You do not need to write any code for this
 question, so no codeblock is provided.\
-**A6**
+**A6** The top recipient is the Save America JFC, which is a fund created by former president Donald Trump after the 2020 election. Trump's popularity, specifically in Republican states like West Virginia, explains why his fund was the one most with the most donations, in addition to the fact that he's a national figure instead of a state figure.
 
 **Q7**. Produce a summary table that has the following information for
 West Virginia as a whole (the whole state, not by city): \* count of
@@ -110,5 +129,16 @@ sentences with overall findings.
 **A7**.
 
 ```{r}
+wv_winred_contribs %>% 
+group_by(city) %>%
+  summarise(
+    count_contribs = n(),
+    total_amount = sum(amount),
+    mean_amount = mean(amount),
+    median_amount = median(amount),
+    min_amount = min(amount),
+    max_amount = max(amount)
+  ) %>%
+  arrange(desc(total_amount))
 
 ```
