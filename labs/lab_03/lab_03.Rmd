@@ -14,19 +14,20 @@ knitr::opts_chunk$set(echo = TRUE)
 # Turn off scientific notation
 options(scipen=999)
 
+library(tidyverse)
 # Load the tidyverse here
 
+library(janitor)
 # Load janitor here
 
 ```
 
 ## Load data
 ```{r}
+md_contribs <- read_rds("data/lab_03.rds")
+```
 # Write code to load MD slice of FEC House candidate contribution data and call it md_contribs.
 # The data is called lab_03.rds, and is in the data folder alongside lab_03.Rmd (this data notebook)
-
-
-```
 
 ## Answer questions
 
@@ -34,16 +35,107 @@ Q1: Which seven cities in Maryland had the largest _number_ of contributions fro
 
 Note: To answer this question, you'll need to see every variation of the "contributor_city" for the top seven cities, which you should identify through some initial analysis. Then find variations of them and change those variations into the most common version.
 
-A1:
+A1:The top seven cities are as follows:
+
+1. Baltimore (6726)
+2. Bethesda (5974)
+3. Silver Spring (4658)
+4. Chevy Chase (3261)
+5. Potomac (2464)
+6. Rockville (2213)
+7. Annapolis (2015)
+8. Laurel (1701)
+
+
 ```{r}
+cleaned_md_contribs_city <- md_contribs %>% 
+  clean_names() %>% 
+mutate(contributor_zip = str_sub(contributor_zip, start=1L, end=5L)) %>% 
+mutate(contributor_city = case_when(
+    contributor_city == "BALITMORE" ~ "BALTIMORE",
+    TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "NORTH BETHESDA" ~ "BETHESDA",
+    TRUE ~ contributor_city
+  )) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "N BETHESDA" ~ "BETHESDA",
+    TRUE ~ contributor_city
+ )) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "BETHSDA" ~ "BETHESDA",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "BETHESA" ~ "BETHESDA",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "SILVER SPRINGS" ~ "SILVER SPRING",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "SILVER SPRING, MD" ~ "SILVER SPRING",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "CHEVY CHASE VILLAG" ~ "CHEVY CHASE",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "NORTH POTOMAC" ~ "POTOMAC",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "N POTOMAC" ~ "POTOMAC",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "11509 LAKE POTOMAC DRIVE" ~ "POTOMAC",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "ANNAPOLIS JUNCTION" ~ "ANNAPOLIS",
+TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = case_when(
+    contributor_city == "ANNAPOLID" ~ "ANNAPOLIS",
+    TRUE ~ contributor_city
+)) %>% 
+  mutate(contributor_city = str_to_title(contributor_city))
 
-# Write your code in this codeblock.
+```
 
+```{r}
+md_contribs_city <- cleaned_md_contribs_city %>% 
+  group_by(contributor_city) %>% 
+  summarise(
+    count = n()
+  ) %>% 
+  arrange(desc(count))
 ```
 
 Q2: Find the 5-digit ZIP code in Maryland that had the highest total amount of contributions (by dollar value). Where is that zip code and what kind of area is it? Which committee is the largest recipient of money from that zip code? How many of the top five recipients are Maryland candidates?
 
-A2:
+The zip code with the highest total amount of contributions is 20815, which encompasses parts of Bethesda but mostly Chevy Chase, Maryland. The committee that is the largest recipient of money from 20815 was ANGEL FOR MARYLAND. 2/5 of the top recipients are from Maryland.
+
+```{r}
+md_contribs_zip <- cleaned_md_contribs_city  %>% 
+  group_by(zip) %>% 
+  distinct() %>%
+  summarise(
+    total=sum(contribution_receipt_amount)
+  ) %>% 
+  arrange(desc(total))
+```
+
+```{r}
+chevy_chase_donations <- cleaned_md_contribs_city  %>% 
+  mutate(contributor_zip = as.numeric(contributor_zip)) %>% 
+  filter(contributor_zip == 20815)
+```
+
 
 ```{r}
 # Hint
@@ -55,8 +147,20 @@ A2:
 Q3: Let's look at top individual donors to House campaigns. Write code to generate a list of top donors using name and city, adding up the total amount of contributions. One of the top few donors has a very strong connection to the U.S. House - who is that and what does he do? How does his donation pattern differ from the second-largest donor, and what can you say about that second-largest donor?
 
 Feel free to add any interesting "color" (little interesting details) you find in your research.  
+David Trone is the top donor, and he is a member of the U.S. House of Representatives from Maryland's 6th congressional district. In terms of his donation pattern, he donated a plethora of $2900 donations over the course of the time frame. The second highest donor, Juanita Mason had more total donations but donated smaller amounts of 25 dollars each time.
 
 A3:
+```{r}
+top_donors <- cleaned_md_contribs_city %>% 
+group_by(contributor_name) %>% 
+  summarise(
+    total=sum(contribution_receipt_amount)
+  ) %>% 
+  arrange(desc(total))
+```
+
+
+
 
 ```{r}
 

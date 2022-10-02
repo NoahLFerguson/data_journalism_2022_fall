@@ -69,7 +69,7 @@ Things that should be characters -- like county, precinct, candidate -- are char
 There are some minor problems. The election_day column is a good example.  It read in as a number (chr), even though there clearly are numbers in it judging from our initial inspection. Here's why: the original file has a single value in that column that is "5+".
 
 ```{r}
-texas_precinct_20 %>% filter(election_day == "5+")
+texas_precinct_20 %>% filter( == "5+")
 ```
 Because this is just one result that's weird, we can fix it by comparing the other votes Castaneda received in Anderson to the county totals for her. The difference should be what that "5+" value should be. I've done those calculations and it turns out that 49 is the actual likely value.
 
