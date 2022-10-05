@@ -122,7 +122,7 @@ The zip code with the highest total amount of contributions is 20815, which enco
 
 ```{r}
 md_contribs_zip <- cleaned_md_contribs_city  %>% 
-  group_by(zip) %>% 
+  group_by(contributor_zip) %>% 
   distinct() %>%
   summarise(
     total=sum(contribution_receipt_amount)
