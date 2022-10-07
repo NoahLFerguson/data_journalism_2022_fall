@@ -75,7 +75,9 @@ maryland_population %>% left_join(county_voters_2020, by="COUNTY") %>% nrow()
 
 ```{r}
 # without nrow
-maryland_population %>% left_join(county_voters_2020, by="COUNTY")
+maryland_population %>% left_join(county_voters_2020, by="COUNTY") %>% 
+  arrange(desc(POP2020))
+
 ```
 
 ### Task 7: Assign Joined Data to New Dataframe
