@@ -1,0 +1,229 @@
+---
+title: "lab_09"
+author: "Derek Willis"
+date: "11/09/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## You will need
+
+* the tidyverse, janitor and tigris libraries
+* you might choose to use the tidycensus library for Q3
+
+## Load libraries and establish settings
+
+**Task** Create a codeblock and load appropriate packages and settings for this lab.
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+library(tidyverse)
+library(janitor)
+library(tigris)
+library(sf)
+library(tidycensus)
+library(tibble)
+library(ggplot2)
+# Load libraries
+
+```
+
+Let's explore the election results from last night and make some maps! 
+
+## Questions 
+
+**Q1.** Make a county-level map of Maryland's results for governor using `md_gov_county.csv` in the data folder, calculating the difference between Wes Moore's percentage of the total votes and Dan Cox's percentage of the total votes and displaying that percentage difference on the map. What is the story here, and what is the county with the most interesting results?
+
+**A1.** The story here us that Dan Cox won more counties in terms of total votes per county (16 of 24) but Wes Moore destroyed Cox in counties with large populations like Baltimore City and Prince George's county. Moore's massive win in Prince George's county, where he won over 88% of the vote, is the most interesting county to look at. What made Moore so appealing and Cox so unappealing to such a large, concentrated group of people?
+
+```{r}
+md_gov_county <- read_csv("data/md_gov_county.csv")
+counties <- counties()
+ md_counties <- counties %>%
+  filter(STATEFP == "24")
+ md_counties %>%
+  ggplot() +
+  geom_sf() +
+  theme_minimal()
+```
+```{r}
+md_gov_county_total <- md_gov_county %>% 
+  mutate(total = Cox + Moore + Lashar + Wallace + Harding + `Write-ins` )
+```
+
+```{r}
+candidates_percent_total <- md_gov_county_total %>% 
+  mutate(moore_total = Moore / total) %>% 
+  mutate(cox_total = Cox / total)
+```
+
+```{r}
+md_counties <- md_counties
+  md_counties$GEOID <- as.numeric(md_counties$GEOID)
+  candidates_percent_total$GEOID <- as.numeric(md_counties$GEOID)
+```
+
+```{r}
+cox_total <- md_gov_county_total %>% 
+  mutate(cox_final = Cox / total)
+```
+
+```{r}
+joined_percent_total <- md_counties %>% left_join(candidates_percent_total, by="GEOID")
+```
+
+```{r}
+difference_percent_total <- joined_percent_total %>% 
+  mutate(
+    candidate_percent_difference = (moore_total - cox_total)
+  )
+```
+
+```{r}
+  ggplot() +
+  theme_minimal() +
+  geom_sf(data=difference_percent_total, aes(fill=candidate_percent_difference)) +
+  scale_colour_viridis_b(option="magma", trans = "log") +
+  theme_minimal()
+```
+
+**Q2.** Make another map showing the difference between Dan Cox's county-level performance in 2022 and Larry Hogan's in 2018, using percentages to compare the two as you did in Q1. You can use the dataframe you initially loaded for Q1, and you'll need to load the 2018 governor results in the data folder and join them to it before proceeding. Are there any counties where Cox got a higher percentage than Hogan? How would you describe the map showing the Hogan-Cox difference?
+
+Also answer this: is a map the best way to present this data? What else could you make that might convey more information?
+
+**A2.** Larry Hogan a higher percentage of votes in every county in 2018 than Dan Cox did in 2022. The map shows a lighter shade for larger differences in vote percentages and a darker color for smaller differences. The map isn't the best way to describe the Hogan-Cox difference since Cox didn't win a single county. The color scheme is confusing because the different colors could make the data misleading/that Cox got more votes than Hogan in counties that he actually didn't. A double bar chart with labels from each county would be a better, easier way to display the data.
+
+```{r}
+md_gov_county_18 <- read_csv("data/md_gov_county_18.csv")
+counties <- counties()
+ md_counties <- counties %>%
+  filter(STATEFP == "24")
+ md_counties %>%
+  ggplot() +
+  geom_sf() +
+  theme_minimal()
+```
+
+```{r}
+hogan_total_votes <- md_gov_county_18 %>% 
+  mutate(total= Hogan + Jealous + Quinn + Schlakman + `Write-ins`) %>% 
+  mutate(hogan_total= Hogan / total)
+# made a new data set adding a column for the total votes for each 2018 candidate per county, then found the percent of hogan votes per county specifically
+```
+
+```{r}
+joined_cox_hogan <- hogan_total_votes %>% left_join(cox_total, by="GEOID")
+#joined the 2022 cox percent per county column with the 2018 hogan percent per county column
+```
+
+```{r}
+cox_hogan_fr <- joined_cox_hogan %>% 
+  mutate(
+    percent_difference_ch = (hogan_total - cox_final)
+  )
+#made a new dataset that added a column with the percent difference between hogan and cox per county after joining cox/hogan above
+```
+
+```{r}
+md_counties <- md_counties
+  md_counties$GEOID <- as.numeric(md_counties$GEOID)
+cox_hogan_fr <- cox_hogan_fr
+  cox_hogan_fr$GEOID <- as.numeric(cox_hogan_fr$GEOID)
+#changed geoids to make them both <num> 
+```
+
+```{r}
+joined_ch <- md_counties %>% left_join(cox_hogan_fr, by="GEOID")
+#joined the cox/hogan data with the md counties data to load the map
+```
+
+```{r}
+ggplot() +
+  theme_minimal() +
+  geom_sf(data=joined_ch, aes(fill=percent_difference_ch)) +
+  scale_colour_viridis_b(option="magma", trans = "log") +
+  theme_minimal()
+```
+**Q3** Which county has the highest percentage of mail ballots remaining to be counted? Using the `mail_remaining.csv` file in the data folder, calculate the percentage of mail ballots remaining, then map a county map of those percentages. Looking at both the map and the data, are there counties where the candidate currently leading the governor's race could, in theory, change?
+
+**A3** There are 14 counties in the data set that don't have any votes counted yet. This is huge when people try to project races for either candidate, especially when one opponent has a large edge over the other in the vote-less states. For example, over 62,000 people cast democratic ballots in Baltimore City as opposed to just over 16,000 Republicans, and none of those votes have been counted yet, which means the early results could favor the Republican candidate unjustly. There are also counties that could have counted more votes of one political party than another, giving one party a lead even if the other party has more total ballots cast but just haven't been counted yet. Most counties' ratios are somewhat even in this data set, but the scenario is definitely still plausible.
+
+```{r}
+mail_remaining.csv <- read_csv("data/mail_remaining.csv")
+```
+
+```{r}
+remaining_percent <- mail_remaining %>% 
+  mutate(
+    remain_percent = (Remaining / Total_Returned)) %>%
+  arrange(desc(remain_percent))
+```
+
+```{r}
+joined_remaining <- md_counties %>% left_join(remaining_percent, by="GEOID")
+```
+
+```{r}
+ggplot() +
+  theme_minimal() +
+  geom_sf(data=joined_remaining, aes(fill=remain_percent)) +
+  scale_colour_viridis_b(option="magma", trans = "reverse") +
+  theme_minimal()
+```
+
+**Q4.** Choose your own map adventure! In the data folder I've included county-level results for several other 2022 contests, including the Comptroller, Attorney General and the marijuana legalization amendment. I've also added the 2020 presidential results by county. Using one of the 2022 races that we haven't already used and at least one other contest for comparison, make a county-level map showing what you think is the most interesting aspect of that data, and describe the results in terms of a possible story. You can bring in other data, such as Census information, if you like.
+
+**A4.**  
+
+```{r}
+md_ag_county <- read_csv("data/md_ag_county.csv") %>% 
+clean_names()
+```
+
+```{r}
+ag_county_percent <- md_ag_county %>% 
+  mutate(
+    ag_total= (peroutka + brown + write_ins)) %>% 
+  mutate(
+    peroutka_total= (peroutka / ag_total)
+  ) %>% 
+clean_names()
+```
+
+```{r}
+md_pres_county_20 <- read_csv("data/md_pres_county_20.csv") %>% 
+  clean_names()
+```
+
+```{r}
+pres_percent_20 <- md_pres_county_20 %>% 
+  mutate(
+    total= (trump + biden + jorgensen + hawkins + segal)) %>% 
+  mutate(
+    trump_total= (trump / total)) %>% 
+  mutate(
+    biden_total= (biden / total)) %>% 
+  mutate(
+    pres_difference= (biden_total - trump_total))
+```
+
+```{r}
+joined_pres_ag <- pres_percent_20 %>% left_join(ag_county_percent, by="geoid")
+```
+
+```{r}
+final_pres_ag <- md_counties %>% left_join(joined_pres_ag)
+```
+
+```{r}
+ggplot() +
+  theme_minimal() +
+  geom_sf(data=joined_pres_ag, aes(fill=ag_county_percent)) +
+  scale_colour_viridis_b(option="magma", trans = "reverse") +
+  theme_minimal()
+```
+
