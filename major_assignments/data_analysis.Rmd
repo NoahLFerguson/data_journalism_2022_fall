@@ -1,0 +1,31 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+options(scipen=999)
+library(tidyverse)
+library(janitor)
+library(tigris)
+library(sf)
+library(tidycensus)
+```
+
+QUESTION 1: What lobbyist/registrant represents the most employers in our data set?
+
+```{r}
+registrations <- read_csv("registrations.csv")
+```
+
+```{r}
+registrations %>% count(`Lobbyist/Registrant`, source = TRUE) %>% 
+arrange(desc(n))
+```
+
+ANSWER 1: The lobbyist that represents the most employers in our data set was Timothy A. Perry. He's been representing employers for 12 years as a member of Perry White Ross Jacobson LLC and served as Chief of Staff to Senate President Thomas V. Mike Miller, Jr., the longest serving State Senate President in United States history. He lives in Baltimore County, Maryland.
+
