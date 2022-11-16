@@ -1,31 +1,79 @@
----
-title: "R Notebook"
-output: html_notebook
+------
+title: "Data Analysis"
+author: "Abby Wallace, Lisa Woelfl, Torrence Banks, Noah Ferguson"
+date: "11/11/2022"
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-options(scipen=999)
+## Introduction 
+
+In this notebook, we are analyzing data from the Maryland Lobbying Registrations. [https://lobby-ethics.maryland.gov/]
+
+## Load libraries
+
+```{r echo=FALSE, message=FALSE}
+# Load the tidyverse here
 library(tidyverse)
+# Load janitor here
 library(janitor)
-library(tigris)
-library(sf)
-library(tidycensus)
+library(lubridate)
+library(stringr)
+library(dplyr)
+library(tidyr)
 ```
 
-QUESTION 1: What lobbyist/registrant represents the most employers in our data set?
+## Load and Cleaning Data
 
 ```{r}
-registrations <- read_csv("registrations.csv")
+# Loading the dataframes and binding them together
+one <- read_csv("registrations(1).csv") %>% clean_names()
+two <- read_csv("registrations(2).csv") %>% clean_names()
+three <- read_csv("registrations(3).csv") %>% clean_names()
+four<- read_csv("registrations(4).csv") %>% clean_names()
+five <- read_csv("registrations(5).csv")%>% clean_names()
+total_registrations <- rbind(one, two, three, four, five)
+write_csv(total_registrations, "total_registrations.csv")
+# We cleaned the data in OpenRefine and split the date column
+clean_total_registrations <- read_csv("clean_total_registrations.csv")
+clean_total_registrations[c('start', 'end')] <- str_split_fixed(clean_total_registrations$registration_period, '-', 2)
 ```
+
+## Basic explorations
 
 ```{r}
-registrations %>% count(`Lobbyist/Registrant`, source = TRUE) %>% 
-arrange(desc(n))
+glimpse(clean_total_registrations)
 ```
 
-ANSWER 1: The lobbyist that represents the most employers in our data set was Timothy A. Perry. He's been representing employers for 12 years as a member of Perry White Ross Jacobson LLC and served as Chief of Staff to Senate President Thomas V. Mike Miller, Jr., the longest serving State Senate President in United States history. He lives in Baltimore County, Maryland.
+The original dataframe had 12855 rows and 5 columns. Our cleaned dataframe has 12855 rows and 9 columns (we added cleaned columns for organization name & employer and split the date column to have a start and end date for the registration).
+
+The data looked pretty clean in OpenRefine. We found just a handful of names to clean up.
+
+Limitations: The dataframe is pretty basic with a small number of columns. That means we will have to cross-reference the website, if we want to know how much a lobbyist is making or how much an employer is spending on lobbying. The standard dataset doesn't even include the registration matters. For our topical questions, we have to download new datasets for every registration matter we're interested in. Another limitation is that the earliest data is from 2019, which means we can't look at long-term trends.
+
+To answer most of our questions, we will have to do additional research. For example, we can ask the number of employers and lobbyists in the energy sector and see how that changed over the last few years. To examine how much the top firms make, we have to go back to the website.
+
+When looking into the PG county youth curfew, we won't get clear cut answers from the data alone. Trying to find a connection between the number of lobbyists for matters of juvenile law and the implementation of the curfew will require additional research on our part.
+
+### Question 1
+
+* **Question text**: What lobbyist/registrant represents the most employers in our data set?
+
+* **Analysis summary**: The lobbyist that represents the most employers in our data set was Timothy A. Perry. He's been representing employers for 12 years as a member of Perry White Ross Jacobson LLC and served as Chief of Staff to Senate President Thomas V. Mike Miller, Jr., the longest serving State Senate President in United States history. He lives in Baltimore County, Maryland.
+
+```{r}
+clean_total_registrations %>% 
+  count(lobbyist_registrant, source = TRUE) %>% 
+  arrange(desc(n))
+```
 
