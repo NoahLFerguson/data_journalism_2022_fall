@@ -42,7 +42,11 @@ two <- read_csv("registrations(2).csv") %>% clean_names()
 three <- read_csv("registrations(3).csv") %>% clean_names()
 four<- read_csv("registrations(4).csv") %>% clean_names()
 five <- read_csv("registrations(5).csv")%>% clean_names()
-total_registrations <- rbind(one, two, three, four, five)
+six <- read_csv("registrations(6).csv") %>% clean_names()
+seven <- read_csv("registrations(7).csv") %>% clean_names()
+eight <- read_csv("registrations(8).csv") %>% clean_names()
+nine <- read_csv("registrations(9).csv") %>% clean_names()
+total_registrations <- rbind(one, two, three, four, five, six, seven, eight, nine)
 write_csv(total_registrations, "total_registrations.csv")
 # We cleaned the data in OpenRefine and split the date column
 clean_total_registrations <- read_csv("clean_total_registrations.csv")
@@ -73,7 +77,8 @@ When looking into the PG county youth curfew, we won't get clear cut answers fro
 
 ```{r}
 most_employers <- clean_total_registrations %>% 
-  count(lobbyist_registrant, source = TRUE) %>% 
+  group_by(lobbyist_registrant) %>% 
+  count() %>% 
   arrange(desc(n))
 ```
 
@@ -82,7 +87,6 @@ clean_total_registrations %>%
   filter(lobbyist_registrant == "Perry, Timothy  A"
   )
 ```
-
 
 ```{r}
 dupe_employers <- clean_total_registrations %>% 
@@ -93,10 +97,11 @@ dupe_employers <- clean_total_registrations %>%
 
 ```{r}
 distinct_employers <- clean_total_registrations %>% 
-n_distinct(clean_employer) %>% 
-group_by(lobbyist_registrant)
+    group_by(lobbyist_registrant, clean_organization_firm, clean_employer) %>% 
+  summarise(
+    count= n_distinct(lobbyist_registrant, clean_organization_firm, clean_employer)
+  ) %>% 
+  ungroup() %>%
+  group_by(lobbyist_registrant) %>% 
+  count()
 ```
-
-group by lobbyists
-don't count, n_distinct by clean_employers
-

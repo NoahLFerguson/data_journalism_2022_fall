@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 **Task** Run the following code in the gray-colored codeblock below to load the tidyverse library
 
 ```{r}
+options(scipen=999)
 library(tidyverse)
 library(janitor)
 ```
