@@ -75,6 +75,8 @@ When looking into the PG county youth curfew, we won't get clear cut answers fro
 
 * **Analysis summary**: The lobbyist that represents the most employers in our data set was Timothy A. Perry. He's been representing employers for 12 years as a member of Perry White Ross Jacobson LLC and served as Chief of Staff to Senate President Thomas V. Mike Miller, Jr., the longest serving State Senate President in United States history. He lives in Baltimore County, Maryland, and has represented 126 distinct employers in our joined data set. He's represented employers such as Stevenson University and AT&T over four of our data cycles. According to a profile written about him in September 2022, he specializes in government relations and serves as a board member of First Fruits Farm, a charitable nonprofit organization that specializes in food services. (https://marquistoplawyers.com/2022/09/16/timothy-perry/)
 
+In the below block, I counted the number of total employers that each lobbyist represents, then arranged in descending order to see who has the most total employers in the cleaned data set.
+
 ```{r}
 most_employers <- clean_total_registrations %>% 
   group_by(lobbyist_registrant) %>% 
@@ -82,11 +84,15 @@ most_employers <- clean_total_registrations %>%
   arrange(desc(n))
 ```
 
+Here, I filtered for Timothy A. Perry's different employers across each of the data sets to see the different employers he represents. There, I realized that he's represented a lot of the employers over multiple data sets, effectively skewing the above data.
+
 ```{r}
 clean_total_registrations %>% 
   filter(lobbyist_registrant == "Perry, Timothy  A"
   )
 ```
+
+I used the codeblock below to see which of Perry's employers he's represented over the most datasets. For example, he's represented Anheuser-Busch Companies four different times, which makes the 333 number in the most_employers data set no longer the number I want to see. I want to see how many unique companies each lobbyist represented, and the current code accounts for all of the duplicates instead of each distinct employer.
 
 ```{r}
 dupe_employers <- clean_total_registrations %>% 
@@ -94,6 +100,8 @@ dupe_employers <- clean_total_registrations %>%
   count(clean_employer, source = TRUE) %>% 
   arrange(desc(n))
 ```
+
+By grouping by lobbyist, organization firm and employer and counting for distinct employers before ungrouping and regrouping by lobbyist, I was able to figure out how many unique employers each lobbyist represents. Perry still leads the way but with a far smaller number than the original data set after all of the duplicate employers were removed. This number better answers the original question that we took from the data, which was who represents the most UNIQUE employers in the combined data set
 
 ```{r}
 distinct_employers <- clean_total_registrations %>% 
