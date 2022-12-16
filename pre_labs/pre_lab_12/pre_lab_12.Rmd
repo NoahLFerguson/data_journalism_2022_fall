@@ -61,7 +61,7 @@ Having grabbed the file, we're going to try extracting the both pages from that 
 
 ### Task 2: Read the PDF using Tabulizer
 **Task** Run the following code and describe the output.
-**Answer**
+**Answer** I got the information from the first page, but the data is cluttered and needs to be cleaned up before I can use it.
 
 ```{r}
 tables <- extract_tables("2022_10.pdf")
@@ -72,7 +72,7 @@ Ok, so the information from the first page is there, but this data needs some wo
 
 ### Task 3: Make the new_registrations dataframe
 **Task** Run the following code and describe the result.
-**Answer** 
+**Answer** This code cleans up the dataframe a lot, cutting the first two rows and renaming the columns while excluding unwanted commas.
 
 ```{r}
 # extract the first page and turn it into a dataframe, cleaning the column names
@@ -99,7 +99,7 @@ Ok, that's one dataframe down. The good news is that making the second dataframe
 
 ### Task 4: Make the removals dataframe
 **Task** Run the following code and describe the result.
-**Answer** 
+**Answer** Renamed the columns, removed commas and foxed datatypes, as well as excluding rows with "NAs" and adding a tenth month and the year 2022.
 
 ```{r}
 # make the new dataframe, renaming the columns and ditching the columns we don't want
@@ -126,7 +126,7 @@ Let's start with the `new_registrations` dataframe and figure out the percentage
 
 ### Task 5: Calculate percentages for new registrations
 **Task** Run the following code and describe what you think are the most interesting percentages in the dataframe.
-**Answer**
+**Answer** Democrats have higher rates of new registrations than Republicans in every category, and so do unaffiliated registrants, in most cases. Curious as to why that is.
 
 ```{r}
 new_registrations <- new_registrations %>% 
@@ -137,8 +137,7 @@ View(new_registrations)
 
 ### Task 6: Calculate percentages for removals
 **Task** Run the following code and describe what you think are the most interesting percentages in the dataframe.
-**Answer**
-
+**Answer** The majority of the removals are by county transfer. Is that always the case, or is this an unusual outlier?
 ```{r}
 removals <- removals %>% 
   mutate(pct_dem = DEM/total *100, pct_rep = REP/total *100, pct_una = UNA/total *100)
@@ -164,6 +163,7 @@ Then we can run the same code we did above, except we'll use the year and month 
 
 ### Task 8: Parse the June 2022 voter registration data
 **Task** Run the following code. What's the name of the new dataframe?
+**Answer** new_registrations_2022_06
 
 ```{r}
 # extract the first page and turn it into a dataframe, cleaning the column names
@@ -216,7 +216,7 @@ Now we can join the October and June new registration dataframes and compare the
 
 ### Task 10: Join the October and June new registration dataframes
 **Task** Run the following code. How many rows do you have compared to either the October or June dataframes?
-**Answer** 
+**Answer** 16 rows on the new dataframe compared to 17 on the June dataframe
 
 ```{r}
 new_reg_oct_jun <- new_registrations %>% 
@@ -227,7 +227,7 @@ Looks like we'll need to fix the column referring to absentee ballots. Let's do 
 
 ### Task 11: Join the October and June new registration dataframes
 **Task** Run the following code. How many rows do you have compared to either the October or June dataframes?
-**Answer** 
+**Answer** 17 for both
 
 ```{r}
 new_reg_oct_jun <- new_registrations %>% 
@@ -239,7 +239,7 @@ Now let's calculate some percentages and the difference between them.
 
 ### Task 10: Calculate percentages and differences
 **Task** Run the following code. What stands out to you about the differences columns?
-**Answer** 
+**Answer** They have both positive and negative numbers for each (democrat, republican, unaffiliated)
 
 ```{r}
 new_reg_oct_jun <- new_reg_oct_jun %>% 
@@ -258,7 +258,7 @@ More than numbers, we are going to want to see this data so we can spot potentia
 
 ### Task 9: Make a simple bar chart
 **Task** Run the following code and describe what the chart is showing. What is the trend in the data?
-**Answer**
+**Answer** This chart really is't showing much except for that Democrats are pretty consistent in a multitude of ways of voter registration.
 
 ```{r fig.width=9}
 new_reg_oct_jun %>% 
@@ -279,7 +279,7 @@ Ok, but what about a side-by-side comparison? Can we put the October and June pe
 
 ### Task 10: Produce a side-by-side chart with two plots
 **Task** Run the following code to make a better bar chart. What are the main differences between them?
-**Answer** 
+**Answer** ERIC Report is much higher in October than June.
 
 ```{r fig.width=9}
 library(cowplot)

@@ -43,8 +43,12 @@ ag_url <- "https://electionresults.utah.gov/elections/countyCount/451556070"
 ```{r}
 results <- ag_url %>% 
   read_html() %>%
-  html_table() %>% 
-  rename(korb = 1, mcmullin = 2, hansen = 3, hamblin = 4, seguin = 5, lee= 6, williams = 7) %>% 
+  html_table()
+
+results <- results[[1]]
+  
+results <- results %>% 
+  rename(county = 1, korb = 2, mcmullin = 2, hansen = 3, hamblin = 4, seguin = 5, lee= 6, williams = 7) %>% 
   slice(-1, -2)
 
 
