@@ -60,21 +60,16 @@ results
 
 Next, we'll get the 2018 results. Unlike the 2022 results, these are stored in an Excel file located here: https://elections.utah.gov/Media/Default/2018%20Election/2018%20General%20Election%20Canvass.xlsx. You can choose how to get the U.S. Senate results - whether you download and save the file in this lab_13 folder (we did this in pre_lab_12) or whether you download it manually and create a CSV file from the Senate results sheet in this directory. Like the 2022 results, you'll want to make a dataframe with clean headers, no total row and numeric columns for the votes.
 
+**Task** Get the county-level results for the U.S. Senate race in 2018, which can be found at https://elections.utah.gov/Media/Default/2018%20Election/2018%20General%20Election%20Canvass.xlsx, and turn them into a dataframe. You will need to make sure that you have clean headers, which may involve renaming them, and you will need to remove the total row. Make sure that the columns containing votes are numeric.
+
 ```{r}
 download.file("https://elections.utah.gov/Media/Default/2018%20Election/2018%20General%20Election%20Canvass.xlsx", "utah.pdf")
 ```
 
 ```{r}
-tables <- extract_tables("utah.pdf")
-View(tables[[1]])
-```
-
-
-
-**Task** Get the county-level results for the U.S. Senate race in 2018, which can be found at https://elections.utah.gov/Media/Default/2018%20Election/2018%20General%20Election%20Canvass.xlsx, and turn them into a dataframe. You will need to make sure that you have clean headers, which may involve renaming them, and you will need to remove the total row. Make sure that the columns containing votes are numeric.
-
-```{r}
-ag_url <- https://elections.utah.gov/Media/Default/2018%20Election/2018%20General%20Election%20Canvass.xlsx
+utah2018 <- read_excel("2018 General Election Canvass.xlsx", sheet=2, skip = 2) %>% 
+  rename(county = 1, aalders = 2, bowden = 3, mccandless = 4, wilson = 5, romney = 6, fitzgerald = 7, reeve = 8, reiksthegn = 9, korb = 10, jackson = 11, judy = 12, jensen = 13) %>% 
+  mutate(across(c(2:13), as.numeric))
 ```
 
 Finally, join the two dataframes together:
@@ -82,22 +77,32 @@ Finally, join the two dataframes together:
 **Task** Join the 2022 and 2018 results into a single dataframe.
 
 ```{r}
+joined_utah <- utah2018 %>% 
+inner_join(results, by= ("county"))
 ```
 
 ## Questions
 
 **Q1.** Calculate the difference in votes between Evan McMullin and Jenny Wilson and save it your combined dataframe. Write up some sentences that could go in a story describing where McMullin outperformed Wilson and where he didn't. Mention the margins and describe the counties you mention (location, population or another factor, such as 2020 presidential vote).
 
-**A1.** 
+**A1.** Evan McMullin outperformed Jenny Wilson in all but one Utah county when comparing the 2018 and 2022 Utah general election results. The disparity was particularly drastic in large counties like Salt Lake City, where McMullin garnered over 31,000 more votes than Wilson. McMullin ran as an independent in 2018, while Wilson won the mayor position as a Democrat in 2022.
 
 ```{r}
+mcmullin_wilson <- joined_utah %>% 
+  select(county, wilson, mcmullin) %>% 
+  mutate(
+    difference = (wilson-mcmullin))
 ```
 
 **Q2** Calculate the difference in votes between Mike Lee and Mitt Romney and save it your combined dataframe. Write up some sentences that could go in a story describing where Romney outperformed Lee and where he didn't. Mention the margins and describe the counties you mention (location, population or another factor).
 
-**A2** 
+**A2** Mitt Romney outperformed Mike Lee in large counties like Salt Lake and Davis by a good margin, while Lee picked up more votes in smaller counties. Lee won, percentage-wise, in small counties like Piute and Sanpete. Romney is a much more well-known name given his presidential run against future president Barack Obama back in 2012, but Lee still put up numbers during his Utah run.
 
 ```{r}
+lee_romney <- joined_utah %>% 
+  select(county, lee, romney) %>% 
+  mutate(
+    difference = (lee-romney))
 ```
 
 **Q3** Sen. Ben Cardin, D-Maryland, has posted hundreds of press releases at https://www.cardin.senate.gov/?post_type=press-releases. It would be great to have all of them in a dataframe that has the following columns: date, title and url.
@@ -110,8 +115,17 @@ When you're done, rename the columns so they make sense, then make sure the date
 
 Finally, tell me what questions you could ask of this data. Be creative.
 
-**A3** 
+**A3** i couldn't beat the buzzer on this one :(
 
 ```{r}
-
+cardin_url <- "https://www.cardin.senate.gov/?post_type=press-releases"
 ```
+
+```{r}
+results <- cardin_url %>% 
+  read_html() %>%
+  html_table()
+
+results <- results[[1]]
+```
+
