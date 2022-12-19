@@ -26,6 +26,7 @@ library(tidyverse)
 library(janitor)
 library(rvest)
 library(lubridate)
+library(tabulizer)
 ```
 
 ## Getting the Data
@@ -48,16 +49,27 @@ results <- ag_url %>%
 results <- results[[1]]
   
 results <- results %>% 
-  rename(county = 1, korb = 2, mcmullin = 2, hansen = 3, hamblin = 4, seguin = 5, lee= 6, williams = 7) %>% 
-  slice(-1, -2)
-
-
+  rename(county = 1, korb = 2, mcmullin = 3, hansen = 4, hamblin = 5, seguin = 6, lee= 7, williams = 8) %>% 
+  slice(-1, -2) %>% 
+  mutate(across(c(2:8), as.numeric))
+  
 results
 ```
 
 
 
 Next, we'll get the 2018 results. Unlike the 2022 results, these are stored in an Excel file located here: https://elections.utah.gov/Media/Default/2018%20Election/2018%20General%20Election%20Canvass.xlsx. You can choose how to get the U.S. Senate results - whether you download and save the file in this lab_13 folder (we did this in pre_lab_12) or whether you download it manually and create a CSV file from the Senate results sheet in this directory. Like the 2022 results, you'll want to make a dataframe with clean headers, no total row and numeric columns for the votes.
+
+```{r}
+download.file("https://elections.utah.gov/Media/Default/2018%20Election/2018%20General%20Election%20Canvass.xlsx", "utah.pdf")
+```
+
+```{r}
+tables <- extract_tables("utah.pdf")
+View(tables[[1]])
+```
+
+
 
 **Task** Get the county-level results for the U.S. Senate race in 2018, which can be found at https://elections.utah.gov/Media/Default/2018%20Election/2018%20General%20Election%20Canvass.xlsx, and turn them into a dataframe. You will need to make sure that you have clean headers, which may involve renaming them, and you will need to remove the total row. Make sure that the columns containing votes are numeric.
 
