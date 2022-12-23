@@ -81,7 +81,7 @@ But where in Prince George's County are these places? We can simply plot them on
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** It shows Prince George's county spatially, with every individual shape being a county precinct.
 
 ```{r}
 pg_precincts %>%
@@ -115,7 +115,7 @@ Now, let's use the counties() function from tigris to pull down a shapefile of a
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Looks like a very similar dataframe to the one above, with the addition of the geometry column at the bottom
 ```{r}
 
 counties <- counties()
@@ -129,7 +129,7 @@ This county shapefile has all 3233 U.S. counties.  We only want the Maryland cou
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Maryland ccounties with the FPS code and other descriptors
 
 ```{r}
 md_counties <- counties %>%
@@ -141,7 +141,7 @@ To see what this looks like, let's plot it out with ggplot. We can pretty clearl
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** A map of the state of Maryland by county
 
 ```{r}
 md_counties %>%
@@ -158,7 +158,7 @@ We're also going to change things up a bit to put the datasets we want to displa
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** The same map of PG County, but the boundaries are more descriptive and accurate based on the number of boundaries
 
 ```{r}
 ggplot() +
@@ -172,7 +172,7 @@ Let's dive back into Prince George's precincts and see what more we can find out
 
 ### Task: Run code to load the turnout data from the July 2022 Primary election
 **Task** Run the following code. Describe the output in the space below.
-**Answer** 
+**Answer**  Precinct data for Prince George's County by turnout
 
 ```{r}
 primary_22 <- read_csv("data/Official by Party and Precinct.csv") %>% clean_names()
@@ -187,7 +187,7 @@ Now we can join the precincts to the turnout data.
 
 ### Task: Run code to join the precinct shapes with the voter turnout data
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** A combined data frame of PG County data and PG County precinct turnout
 
 ```{r}
 pg_precincts_with_turnout <- pg_precincts %>% left_join(pg_turnout, by=c("PRECINCT_ID"="precinct"))
@@ -197,7 +197,7 @@ Now we can use color to distinguish precincts from each other. Let's use the tot
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Map of Prince George's County with color-coded precincts. A precinct with a higher turnout is a lighter color than a lower turnout, darker color precinct
 
 ```{r}
 ggplot() +
@@ -223,7 +223,7 @@ library(tidyverse)
 library(sf)
 library(janitor)
 library(tidycensus)
-#census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
 ```
 
 For the rest of this chapter, we're going to work on building a map that will help us gain insight into geographic patterns in voter registration by county in Maryland. Our question: by examining the number of Democrats/Republicans/Unaffiliated voters per 100,000 people in each county, what regional geographic patterns can we identify?
@@ -232,7 +232,7 @@ We've got voters by county, so let's load that from the data folder and take a l
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Maryland counties with voter breakdown by party
 
 ```{r}
 voters_by_county <- read_csv("data/eligible_voters.csv")
@@ -245,7 +245,7 @@ Next, we'll go out and get population data for each county from tidycensus. The 
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Population estimaes for each Maryland county.
 
 ```{r}
 md_county_population <- get_acs(geography = "county",
@@ -259,7 +259,7 @@ Ultimately, we're going to join this county population table with our voters by 
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** The same data frame with a new "geometry" column on the right.
 
 ```{r}
 md_county_population <- get_acs(geography = "county",
@@ -277,7 +277,7 @@ But there's a problem.  The column in our population data that has county names 
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Maryland counties with voter breakdown by party once again.
 
 ```{r}
 md_county_population
@@ -291,7 +291,7 @@ Let's clean the population table. We're going to rename the "NAME" column to "Co
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Maryland ounty with total population and geometry column
 
 ```{r}
 md_county_population <- md_county_population %>%
@@ -307,7 +307,7 @@ Now we can join them.
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Successful joined data frame with County, total population, voter breakdown by party and geometry column for the map.
 
 ```{r}
 md_voters_per_10k <- md_county_population %>%
@@ -319,7 +319,7 @@ Hang on - there's at least one county with NA values - St. Mary's, which is spel
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Fixed the original data frame to accurately descrive St. Mary's and Baltimore County, whoch was incorrectly spelled in the previous data frame.
 
 ```{r}
 md_county_population <- md_county_population %>%
@@ -331,7 +331,7 @@ Our final step before visualization, let's calculate the number of voters per 10
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** The number of voters per 10,000 population for each county, sorted from highest to lowest
 
 ```{r}
 md_voters_per_10k <- md_county_population %>%
@@ -348,7 +348,7 @@ Okay, now let's visualize.  We're going to build a choropleth map, with the colo
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Map of Maryland by county with color-coded counties. A county with a higher turnout is a lighter color than a lower turnout, darker color county.
 
 ```{r}
 ggplot() +
@@ -359,7 +359,7 @@ This map is okay, but the color scale makes it hard to draw fine-grained differe
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer**
+**Answer** Changed the color scheme on the new map, whoch made the highest ranking counties stand out more.
 
 ```{r}
 ggplot() +
@@ -373,7 +373,7 @@ So let's change the color scale to a "log" scale, which will help us see those d
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below. What regional patterns do you see?
-**Answer**
+**Answer** Same map with better color scheme regarding minute differences between counties. It's interesting how spread out the counties are with higher voter turnout. They're not all packed in to one region of Maryland, but are pretty spread out across the state which is interesting.
 
 ```{r}
 ggplot() +
@@ -385,7 +385,7 @@ Let's repeat that for Unaffiliated voters:
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below.
-**Answer** 
+**Answer** Same data frame as before but with a new column regarding unaffiliated population per 10,000 people.
 
 ```{r}
 md_voters_per_10k <- md_voters_per_10k %>% 
@@ -396,7 +396,7 @@ And then map it:
 
 ### Task: Run code
 **Task** Run the following code. Describe the output in the space below. What regional patterns do you see, especially on the ends of the scale?
-**Answer** 
+**Answer** Same mpa but with unaffiliated voters per 10k people. A lot of Maryland counties are right in the middle of the spectrum, while there's only one county with 900 unaffiliated voters or fewer per 10k people.
 
 ```{r}
 ggplot() +
